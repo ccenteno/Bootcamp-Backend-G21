@@ -72,3 +72,48 @@ INSERT INTO movimientos (cuenta_origen, cuenta_destino, monto, fecha_operacion) 
                         (5, null, 100.00, '2024-07-17T10:19:25'),
                         (6, null, 350.28, '2024-07-18T14:15:16');
 
+SELECT CASE
+WHEN ACTIVO IS TRUE THEN 'Cliente activo'
+WHEN ACTIVO IS FALSE THEN 'Cliente NO puede hacer operaciones'
+ELSE 'Hubo un Error'
+END, activo FROM clientes;
+
+SELECT CASE activo
+WHEN TRUE THEN 'Cliente activo'
+WHEN FALSE THEN 'Cliente NO puede hacer operaciones'
+ELSE 'Hubo un Error'
+END, activo FROM clientes;
+
+-- Usando el switch case Mostrar los movimientos que sean DEPOSITO, TRANSFERENCIA o RETIRO, siendo:
+-- DEPOSITO: Cuando no hay cuenta_origen pero si cuenta destino
+-- TRANSFERENCIA: Cuando hay cuenta_origen y cuenta_destino
+-- RETIRO : Cuando hay cuenta_origen y no hay cuenta_destino
+-- y sus montos
+select cuenta_origen, cuenta_destino,  CASE
+when cuenta_origen is null and not cuenta_destino is null then 'Deposito'
+when not cuenta_origen is null and not cuenta_destino is null then 'Transferencia'
+when not cuenta_origen is null and cuenta_destino is null then 'Retiro'
+end, monto from movimientos;
+
+-- En base a los correos de los clientes hacer lo siguiente
+-- Si el correo es gmail > 'es una persona joven'
+-- Si el correo es hotmail > 'es una person adulta'
+-- Si el correo es yahoo > 'es un dinosaurio'
+select nombre, email, case 
+  when email ilike '%gmail.___' then 'Es una persona joven'
+  when email ilike '%hotmail.___' then 'Es una persona adulta'
+  when email ilike '%yahoo.___' or email like '%yahoo.__' then 'Es un dinosaurio'
+  else 'No se que tipo de persona es' end as mensaje from clientes;
+
+-- Usando la funcion de agregacion SUM obtener los debitos de todas las cuentas (lo que sale) cuenta_origen no es nula
+select sum(monto) total_debito from movimientos where cuenta_origen is not null;
+
+-- Obtener los creditos de todas la cuentas (lo que llega / entra) > cuenta_destino no es nula
+select sum(monto) total_credito from movimientos where cuenta_destino is not null;
+
+select 'Total Debito' as Tipo, cuenta_origen as cuenta, sum(monto) total from movimientos where cuenta_origen is not null group by cuenta_origen
+union
+select 'Total Credito' as Tipo, cuenta_destino as cuenta, sum(monto) total from movimientos where cuenta_destino is not null group by cuenta_destino
+order by cuenta;
+
+
