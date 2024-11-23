@@ -99,3 +99,89 @@ CREATE DATABASE pruebas;
 -- \! cls  limpiar el contenido de la consola
 
 -- \c o \connect pruebas
+
+create table alumnos (
+id Serial not null primary key, 
+nombre text not null,
+email text not null unique, 
+matriculado boolean default true, 
+fecha_nacimiento date null);
+CREATE TABLE
+
+alter table alumnos add column apellidos text;
+ALTER TABLE
+alter table alumnos add column email text not null unique;
+
+
+ create table direcciones(id serial not null primary key, nombre text);
+
+ drop table direcciones;
+
+ drop database Nombre_bd;
+
+ -- DML (Data manipulation languages)
+ -- 
+ \dT alumnos
+
+ \d alumnos
+
+ pruebas=# \dT alumnos
+    Listado de tipos de dato
+ Esquema | Nombre | Descripci¾n
+---------+--------+-------------
+(0 filas)
+
+
+pruebas=# \d alumnos
+                                   Tabla ½public.alumnos╗
+     Columna      |  Tipo   | Ordenamiento | Nulable  |             Por omisi¾n
+------------------+---------+--------------+----------+-------------------------------------
+ id               | integer |              | not null | nextval('alumnos_id_seq'::regclass)
+ nombre           | text    |              | not null |
+ email            | text    |              | not null |
+ matriculado      | boolean |              |          | true
+ fecha_nacimiento | date    |              |          |
+ apellidos        | text    |              |          |
+═ndices:
+    "alumnos_pkey" PRIMARY KEY, btree (id)
+    "alumnos_email_key" UNIQUE CONSTRAINT, btree (email)
+
+
+pruebas=# insert into alumnos (id, nombre, email, matriculado, fecha_nacimiento, apellidos)
+pruebas-# values (default, 'Cesar', 'ccentenor@gmail.com', true, '1970-01-24', 'Centeno Rojas');
+INSERT 0 1
+pruebas=# select * from alumnos;
+ id | nombre |        email        | matriculado | fecha_nacimiento |   apellidos
+----+--------+---------------------+-------------+------------------+---------------
+  1 | Cesar  | ccentenor@gmail.com | t           | 1970-01-24       | Centeno Rojas
+(1 fila)
+
+pruebas=# INSERT INTO alumnos VALUES (DEFAULT, 'Cesar', 'ccenteno@tecsup.edu.pe', DEFAULT, '1995-06-02', 'Centeno'), (DE
+FAULT, 'Javier', 'jviiesse@gmail.com', FALSE, '2000-02-14', 'Wiesse'), (DEFAULT, 'Farit', 'fespinoza@gmail.com', TRUE, '
+1990-07-28', 'Espinoza');
+INSERT 0 3
+
+pruebas=# select * from alumnos;
+ id | nombre |         email          | matriculado | fecha_nacimiento |   apellidos
+----+--------+------------------------+-------------+------------------+---------------
+  1 | Cesar  | ccentenor@gmail.com    | t           | 1970-01-24       | Centeno Rojas
+  2 | Cesar  | ccenteno@tecsup.edu.pe | t           | 1995-06-02       | Centeno
+  3 | Javier | jviiesse@gmail.com     | f           | 2000-02-14       | Wiesse
+  4 | Farit  | fespinoza@gmail.com    | t           | 1990-07-28       | Espinoza
+(4 filas)
+
+select * from alumnos where matriculado and id<3;
+ id | nombre |         email          | matriculado | fecha_nacimiento |   apellidos
+----+--------+------------------------+-------------+------------------+---------------
+  1 | Cesar  | ccentenor@gmail.com    | t           | 1970-01-24       | Centeno Rojas
+  2 | Cesar  | ccenteno@tecsup.edu.pe | t           | 1995-06-02       | Centeno
+(2 filas)
+
+
+select * from alumnos where matriculado or id<3;
+ id | nombre |         email          | matriculado | fecha_nacimiento |   apellidos
+----+--------+------------------------+-------------+------------------+---------------
+  1 | Cesar  | ccentenor@gmail.com    | t           | 1970-01-24       | Centeno Rojas
+  2 | Cesar  | ccenteno@tecsup.edu.pe | t           | 1995-06-02       | Centeno
+  4 | Farit  | fespinoza@gmail.com    | t           | 1990-07-28       | Espinoza
+(3 filas)
