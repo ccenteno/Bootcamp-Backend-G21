@@ -2,6 +2,10 @@ from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 # https://docs.sqlalchemy.org/en/20/core/type_basics.html#generic-camelcase-types
 from sqlalchemy import Column, types
+from flask_migrate import Migrate
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from marshmallow.exceptions import ValidationError
+
 
 app = Flask(__name__)
 
@@ -31,6 +35,11 @@ class ProductoModel(conexion.Model):
     # para indicar comom queremos que se llame la tabla sin modificar el nombre de la clase
     __tablename__ = "productos"
 
+class ProductSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        # Sirve ára ásarle a la clase de la cual estamos heredando pero sin la necesidad de modficacar con tal la instancia de la clase
+        model = ProductoModel
+        # al indicar el modelo que se tiene que basar podra ubicar todos los atributos y ver sus restricciones (not null, unico, tipo de datos, etc)
 
 # @app.route('/crear-tablas')
 # def crear_tablas():
@@ -46,30 +55,67 @@ class ProductoModel(conexion.Model):
 def gestion_productos():
     metodo = request.method
     if metodo=='POST':
+        serializador = 
         # primero leeremos la informacion del cliente
         # convertimos el json a un diccionario para que Python lo procese
         data = request.get_json()
-        nuevoProducto=ProductoModel(nombre=data.get('nombre'),
-                                    precio=data.get('precio'),
-                                    serie=data.get('serie'),
-                                    disponible=data.get('disponible'),
-                                    fechaVencimiento=data.get('fechaVencimiento'))
-        #print(data)
-        print('Producto antes de guardarse en la bd', nuevoProducto.id)
-        #utilizamos la conexion para ir a la bd
-        conexion.session.add(nuevoProducto)
+        try:
+            serializador.load(data)
+            nuevoProducto=ProductoModel(nombre=data.get('nombre'),
+                                        precio=data.get('precio'),
+                                        serie=data.get('serie'),
+                                        disponible=data.get('disponible'),
+                                        fechaVencimiento=data.get('fechaVencimiento'))
+            #print(data)
+            print('Producto antes de guardarse en la bd', nuevoProducto.id)
+            #utilizamos la conexion para ir a la bd
+            # empezamos una transaccion en la cual estamos indicando que agregaremos este registro
+            conexion.session.add(nuevoProducto)
 
-        conexion.sesion.commit()
+            # indicamos que los cambios tiene que guardarse de manera permanente
+            conexion.sesion.commit()
 
-        print('Producto luego de guardarse en la bd', nuevoProducto.id)
-        return {
-            'message': 'Registro creado exitosamente'
-        }
+            print('Producto luego de guardarse en la bd', nuevoProducto.id)
+            return {
+                'message': 'Registro creado exitosamente'
+            }
+        except ValidationError as error:
+            # si falla al momento de hacer la validacion con el serializador
+            return {
+                'message': 'Error al crear el producto',
+                'content': error.args
+            }
+        except IntegrityError as error:
+            # si falla al momento de guardar en la base de datos y el producto ya existe (nombre es unico)
+            return {
+                'message': 'Error al crear el producto',
+                'content': 'El producto ya existe!'
+            }
+        
     elif metodo=='GET':
+        # Establecemos una consulta de obtencion de datos
+        # SELECT * FROM productos;
         productos = conexion.session.query(ProductoModel).all()
+        # print(productos)
+        # resultado=[]
+        # for producto in productos:
+        #     item={
+        #         'id':producto.id,
+        #         'nombre':producto.nombre,
+        #         'precio':producto.precio,
+        #         'serie':producto.serie,
+        #         'disponible':producto.disponible,
+        #         'fechaVencimiento':producto.fechaVencimiento
+        #     }
+        #     resultado.append(item)
 
-        print(productos)
+        serializador = ProductSchema()
+        # cuando convertimos la informacion desde la bd a un dict utilizamos el metodo dump
+        # cuando pasamo un arreglo de instancias tenemos que agregar el parametro 
+        resultado = serializador.dump(productos, many=True)
+
         return {'message':'Los productos son',
+                'content':resultado
                 }
 
 
