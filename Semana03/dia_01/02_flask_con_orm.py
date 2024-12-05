@@ -14,6 +14,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg://postgres:root@loca
 
 conexion = SQLAlchemy(app=app)
 
+Migrate(app=app, db=conexion)
 
 # Cada tabla que vayamos a crear sera como una clase
 class ProductoModel(conexion.Model):
