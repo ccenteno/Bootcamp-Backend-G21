@@ -1,0 +1,8 @@
+#Cuando colocalmo el *, estaremos indicando que no importa lo que viene o lo que precede
+entorno*
+# ignorando todos los archivos cuya extension .pyc y nom me importa el nombre
+# python cache
+*.pyc
+
+#variables de entorno
+.env
