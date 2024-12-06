@@ -11,6 +11,7 @@ class ProductoController(Resource):
         serializador = ProductoSerializer()
         try:
             data_validada = serializador.load(data=data)
+            # TODO: Antes de guardad el producto validar que exista la categoria, si es que el pasa, porque tambien puede haber productos sin categoria
             nuevo_producto = ProductoModel(**data_validada)
 
             conexion.session.add(nuevo_producto)
