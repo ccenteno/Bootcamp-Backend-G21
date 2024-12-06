@@ -49,6 +49,31 @@ class CategoriaController(Resource):
                     }
         except ValidationError as error:
             return {'message': 'Error al crear categoria',
-                    'content': error.args  # muestra la lista de errores
+                    'content': error.args  # muestra la descripcion del error
                     }
+
+# cuando queremos trabajar en otra ruta o utilizar otra vez  un metodo ya creado
+# Cuando ponemos en un metodo http un parametro que significa que vamos a recibir ese parametro por la url
+# /endpoint/<id>    
+class ManejoCategoriaController(Resource):
+    def validarCategoria(self, id):
+        # filter > hace la comparacion entre los atributos de la clase
+        # filter_by > hace la comparacion entre PARAMETROS mas no utiliza atributos, SOLO SIRVE PARA HACER BUSQUEDAS IGUAL QUE
+        # el filter es mejor porque nos permite hacer busquedas mas avanzadas como LIKE, ILIKE, mayor que, etc
+
+        # SELECT * FROM categorias WHERE id = '...' LIMIT = 1;
+        categoria_encontrada=conexion.session.query(CategoriaModel).filter(
+            CategoriaModel.id == int(id)).first()
+
+        if categoria_encontrada is None:
+            return {'message': 'Categoria no existe'}
+        return categoria_encontrada
     
+    def get(self, id):
+
+        categoria_encontrada = self.validarCategoria(id)
+
+        serializador = CategoriaSerializer()
+        resultado = serializador.dump(categoria_encontrada)
+
+        return {'content': resultado}
