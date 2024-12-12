@@ -1,2 +1,0 @@
-from .categoria_serializer import CategoriaSerializer
-from .producto_serializer import ProductoSerializer
